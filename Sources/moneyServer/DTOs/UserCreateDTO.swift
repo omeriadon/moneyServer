@@ -6,7 +6,7 @@ struct UserCreateDTO: Content, Validatable {
     let password: String
 
     static func validations(_ validations: inout Validations) {
-        validations.add("name", as: String.self, is: !.empty)
+        validations.add("firstName", as: String.self, is: !.empty)
         validations.add("email", as: String.self, is: .email)
         validations.add("password", as: String.self, is: .count(8...))
     }

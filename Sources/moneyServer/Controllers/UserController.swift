@@ -29,7 +29,12 @@ struct UserController: RouteCollection {
             firstName: create.firstName
         )
 
-        try await user.save(on: req.db)
+        do {
+            try await user.save(on: req.db)
+        } catch {
+            req.logger.error("\(String(reflecting: error))")
+            throw error
+        }
 
         return UserDTO(id: user.id, firstName: user.firstName, email: user.email)
     }

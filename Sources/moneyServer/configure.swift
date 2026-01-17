@@ -6,15 +6,22 @@ import Vapor
 public func configure(_ app: Application) async throws {
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
-    try app.databases.use(DatabaseConfigurationFactory.postgres(configuration: .init(
+    let postgresConfig = try SQLPostgresConfiguration(
         hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
-        username: Environment.get("DATABASE_USERNAME") ?? "vapor_username",
-        password: Environment.get("DATABASE_PASSWORD") ?? "vapor_password",
-        database: Environment.get("DATABASE_NAME") ?? "vapor_database",
+        port: Environment.get("DATABASE_PORT").flatMap(Int.init) ?? SQLPostgresConfiguration.ianaPortNumber,
+        username: Environment.get("DATABASE_USERNAME") ?? "adon",
+        password: Environment.get("DATABASE_PASSWORD") ?? "supersecure",
+        database: Environment.get("DATABASE_NAME") ?? "moneyserver",
         tls: .prefer(.init(configuration: .clientDefault))
     )
-    ), as: .psql)
+
+    app.databases.use(
+        .postgres(
+            configuration: postgresConfig,
+            sqlLogLevel: .info
+        ),
+        as: .psql
+    )
 
     app.migrations.add(CreateUser())
     app.migrations.add(CreateTransaction())

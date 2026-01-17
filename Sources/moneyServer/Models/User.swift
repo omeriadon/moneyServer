@@ -14,7 +14,7 @@ final class User: Model, Authenticatable, @unchecked Sendable {
     @Field(key: "first_name")
     var firstName: String
 
-    @Field(key: "passwordHash")
+    @Field(key: "password_hash")
     var passwordHash: String
 
     @Children(for: \.$user)
@@ -22,7 +22,8 @@ final class User: Model, Authenticatable, @unchecked Sendable {
 
     init() {}
 
-    init(id _: UUID? = nil, email: String, passwordHash: String, firstName: String) {
+    init(id: UUID? = nil, email: String, passwordHash: String, firstName: String) {
+        self.id = id
         self.email = email
         self.passwordHash = passwordHash
         self.firstName = firstName

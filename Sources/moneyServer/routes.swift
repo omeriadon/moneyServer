@@ -10,6 +10,6 @@ func routes(_ app: Application) throws {
         "Hello, world!"
     }
 
-    let transactionController = TransactionController()
-    try app.register(collection: transactionController)
+    try app.register(collection: TransactionController())
+    try app.register(collection: UserController())
 }
