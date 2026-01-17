@@ -1,0 +1,4 @@
+--indent tab
+--enable indent
+--indent 4
+--swift-version 6
