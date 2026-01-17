@@ -34,10 +34,6 @@ struct UserController: RouteCollection {
         return UserDTO(id: user.id, firstName: user.firstName, email: user.email)
     }
 
-	
-	
-	
-	
     // MARK: - Login
 
     func login(req: Request) async throws -> UserToken {
