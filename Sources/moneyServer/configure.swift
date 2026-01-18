@@ -8,10 +8,10 @@ public func configure(_ app: Application) async throws {
 
 	let postgresConfig = try SQLPostgresConfiguration(
 		hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-		port: Environment.get("DATABASE_PORT").flatMap(Int.init) ?? SQLPostgresConfiguration.ianaPortNumber,
-		username: Environment.get("DATABASE_USERNAME") ?? "adon",
-		password: Environment.get("DATABASE_PASSWORD") ?? "supersecure",
-		database: Environment.get("DATABASE_NAME") ?? "moneyserver",
+		port: Environment.get("DATABASE_PORT").flatMap(Int.init)!,
+		username: Environment.get("DATABASE_USERNAME")!,
+		password: Environment.get("DATABASE_PASSWORD"),
+		database: Environment.get("DATABASE_NAME"),
 		tls: .prefer(.init(configuration: .clientDefault))
 	)
 
