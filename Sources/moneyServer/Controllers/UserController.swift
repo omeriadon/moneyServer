@@ -7,8 +7,7 @@ struct UserController: RouteCollection {
 		let users = routes.grouped("users")
 		users.post("signup", use: signup)
 
-		let passwordProtected = users.grouped(User.authenticator(), User.guardMiddleware())
-		passwordProtected.post("login", use: login)
+		users.post("login", use: login)
 
 		let tokenProtected = users.grouped(UserToken.authenticator(), User.guardMiddleware())
 		tokenProtected.get("me", use: me)
@@ -46,7 +45,18 @@ struct UserController: RouteCollection {
 	}
 
 	func login(req: Request) async throws -> UserTokenResponseDTO {
-		let user = try req.auth.require(User.self)
+		let loginDTO = try req.content.decode(UserLoginDTO.self)
+
+		guard let user = try await User.query(on: req.db)
+			.filter(\.$email == loginDTO.email.lowercased())
+			.first()
+		else {
+			throw Abort(.unauthorized, reason: "Invalid email or password.")
+		}
+
+		guard try Bcrypt.verify(loginDTO.password, created: user.passwordHash) else {
+			throw Abort(.unauthorized, reason: "Invalid email or password.")
+		}
 
 		let token = try user.generateToken()
 		try await token.save(on: req.db)
