@@ -21,3 +21,10 @@ final class UserToken: Model, Content, @unchecked Sendable {
         $user.id = userID
     }
 }
+
+extension UserToken: ModelTokenAuthenticatable {
+    static var valueKey: KeyPath<UserToken, Field<String>> { \.$value }
+    static var userKey: KeyPath<UserToken, Parent<User>> { \.$user }
+
+    var isValid: Bool { true }
+}

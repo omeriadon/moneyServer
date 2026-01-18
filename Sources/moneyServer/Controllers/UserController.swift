@@ -14,6 +14,7 @@ struct UserController: RouteCollection {
         // Token-protected routes
         let tokenProtected = users.grouped(UserToken.authenticator(), User.guardMiddleware())
         tokenProtected.get("me", use: me)
+        tokenProtected.post("logout", use: logout)
     }
 
     // MARK: - Signup
@@ -48,17 +49,18 @@ struct UserController: RouteCollection {
         return token
     }
 
+    // MARK: - Logout
+
+    func logout(req: Request) async throws -> HTTPStatus {
+        let token = try req.auth.require(UserToken.self)
+        try await token.delete(on: req.db)
+        return .noContent
+    }
+
     // MARK: - Current user
 
     func me(req: Request) async throws -> UserDTO {
         let user = try req.auth.require(User.self)
         return UserDTO(id: user.id, firstName: user.firstName, email: user.email)
     }
-}
-
-extension UserToken: ModelTokenAuthenticatable {
-    static var valueKey: KeyPath<UserToken, Field<String>> { \.$value }
-    static var userKey: KeyPath<UserToken, Parent<User>> { \.$user }
-
-    var isValid: Bool { true }
 }

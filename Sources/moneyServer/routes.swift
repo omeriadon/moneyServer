@@ -1,13 +1,11 @@
-import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.get { _ async in
-        "It works!"
-    }
-
-    app.get("hello") { _ async -> String in
-        "Hello, world!"
+    app.get("health") { _ -> HealthResponse in
+        HealthResponse(
+            status: "ok",
+            uptime: Int(ProcessInfo.processInfo.systemUptime)
+        )
     }
 
     try app.register(collection: TransactionController())
