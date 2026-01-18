@@ -18,18 +18,100 @@ struct TransactionController: RouteCollection {
 		let dto = try req.content.decode(TransactionCreateDTO.self)
 		let user = try req.auth.require(User.self)
 
-		let transaction = try Transaction(change: dto.change, userID: user.requireID())
+		let transaction = Transaction(
+			change: dto.change,
+			title: dto.title,
+			description: dto.description,
+			importance: dto.importance,
+			userID: user.id!
+		)
 		try await transaction.save(on: req.db)
-		return TransactionDTO(id: transaction.id, change: transaction.change, userID: user.id!)
+
+		return TransactionDTO(
+			id: transaction.id,
+			change: transaction.change,
+			title: transaction.title,
+			description: transaction.description,
+			importance: transaction.importance,
+			userID: user.id!,
+			dateCreated: transaction.dateCreated,
+			dateUpdated: transaction.dateUpdated
+		)
 	}
 
 	func list(req: Request) async throws -> [TransactionDTO] {
 		let user = try req.auth.require(User.self)
 		let transactions = try await Transaction.query(on: req.db)
-			.filter(\.$user.$id == user.id!)
+			.filter(\.$user.$id == user.requireID())
 			.all()
 
-		return transactions.map { TransactionDTO(id: $0.id, change: $0.change, userID: user.id!) }
+		return transactions.map { transaction in
+			TransactionDTO(
+				id: transaction.id,
+				change: transaction.change,
+				title: transaction.title,
+				description: transaction.description,
+				importance: transaction.importance,
+				userID: user.id!,
+				dateCreated: transaction.dateCreated,
+				dateUpdated: transaction.dateUpdated
+			)
+		}
+	}
+
+	func get(req: Request) async throws -> TransactionDTO {
+		let user = try req.auth.require(User.self)
+		guard let id = req.parameters.get("transactionID", as: UUID.self),
+		      let transaction = try await Transaction.query(on: req.db)
+		      .filter(\.$id == id)
+		      .filter(\.$user.$id == user.requireID())
+		      .first()
+		else {
+			throw Abort(.notFound)
+		}
+
+		return TransactionDTO(
+			id: transaction.id,
+			change: transaction.change,
+			title: transaction.title,
+			description: transaction.description,
+			importance: transaction.importance,
+			userID: user.id!,
+			dateCreated: transaction.dateCreated,
+			dateUpdated: transaction.dateUpdated
+		)
+	}
+
+	func update(req: Request) async throws -> TransactionDTO {
+		let user = try req.auth.require(User.self)
+		guard let id = req.parameters.get("transactionID", as: UUID.self),
+		      let transaction = try await Transaction.query(on: req.db)
+		      .filter(\.$id == id)
+		      .filter(\.$user.$id == user.requireID())
+		      .first()
+		else {
+			throw Abort(.notFound)
+		}
+
+		let update = try req.content.decode(TransactionUpdateDTO.self)
+
+		if let change = update.change { transaction.change = change }
+		if let title = update.title { transaction.title = title }
+		if let description = update.description { transaction.description = description }
+		if let importance = update.importance { transaction.importance = importance }
+
+		try await transaction.save(on: req.db)
+
+		return TransactionDTO(
+			id: transaction.id,
+			change: transaction.change,
+			title: transaction.title,
+			description: transaction.description,
+			importance: transaction.importance,
+			userID: user.id!,
+			dateCreated: transaction.dateCreated,
+			dateUpdated: transaction.dateUpdated
+		)
 	}
 
 	func delete(req: Request) async throws -> HTTPStatus {
@@ -51,41 +133,12 @@ struct TransactionController: RouteCollection {
 	func deleteMultiple(req: Request) async throws -> HTTPStatus {
 		let user = try req.auth.require(User.self)
 		let dto = try req.content.decode(TransactionDeleteDTO.self)
+
 		try await Transaction.query(on: req.db)
 			.filter(\.$id ~~ dto.ids)
-			.filter(\.$user.$id == user.requireID()) // ensure only user’s transactions
+			.filter(\.$user.$id == user.requireID())
 			.delete()
+
 		return .ok
-	}
-
-	func get(req: Request) async throws -> TransactionDTO {
-		let user = try req.auth.require(User.self)
-		guard let id = req.parameters.get("transactionID", as: UUID.self),
-		      let transaction = try await Transaction.query(on: req.db)
-		      .filter(\.$id == id)
-		      .filter(\.$user.$id == user.id!)
-		      .first()
-		else { throw Abort(.notFound) }
-
-		return TransactionDTO(id: transaction.id, change: transaction.change, userID: user.id!)
-	}
-
-	func update(req: Request) async throws -> TransactionDTO {
-		let user = try req.auth.require(User.self)
-		guard let id = req.parameters.get("transactionID", as: UUID.self),
-		      let transaction = try await Transaction.query(on: req.db)
-		      .filter(\.$id == id)
-		      .filter(\.$user.$id == user.id!)
-		      .first()
-		else { throw Abort(.notFound) }
-
-		let update = try req.content.decode(TransactionUpdateDTO.self)
-
-		if let change = update.change {
-			transaction.change = change
-		}
-
-		try await transaction.save(on: req.db)
-		return TransactionDTO(id: transaction.id, change: transaction.change, userID: user.id!)
 	}
 }

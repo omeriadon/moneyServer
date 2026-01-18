@@ -5,7 +5,12 @@ struct CreateTransaction: AsyncMigration {
 		try await database.schema("transactions")
 			.id()
 			.field("change", .int, .required)
-			.field("user_id", .uuid, .required, .references("users", "id", onDelete: .cascade))
+			.field("title", .string, .required)
+			.field("description", .string, .required)
+			.field("importance", .string, .required)
+			.field("user_id", .uuid, .required, .references("users", "id"))
+			.field("date_created", .datetime)
+			.field("date_updated", .datetime)
 			.create()
 	}
 
