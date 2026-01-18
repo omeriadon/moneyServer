@@ -29,3 +29,8 @@ struct UserUpdateDTO: Content {
 	let email: String?
 	let password: String?
 }
+
+struct UserLoginDTO: Content {
+	let email: String
+	let password: String
+}

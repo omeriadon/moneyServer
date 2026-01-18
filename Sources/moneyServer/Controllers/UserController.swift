@@ -45,11 +45,13 @@ struct UserController: RouteCollection {
 		return UserDTO(id: user.id, firstName: user.firstName, email: user.email)
 	}
 
-	func login(req: Request) async throws -> UserToken {
+	func login(req: Request) async throws -> UserTokenResponseDTO {
 		let user = try req.auth.require(User.self)
+
 		let token = try user.generateToken()
 		try await token.save(on: req.db)
-		return token
+
+		return UserTokenResponseDTO(token: token.value, user: UserDTO(id: user.id, firstName: user.firstName, email: user.email))
 	}
 
 	func logout(req: Request) async throws -> HTTPStatus {
