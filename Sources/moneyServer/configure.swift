@@ -15,6 +15,8 @@ public func configure(_ app: Application) async throws {
 		tls: .prefer(.init(configuration: .clientDefault))
 	)
 
+	app.http.server.configuration.port = 6776
+
 	app.databases.use(
 		.postgres(
 			configuration: postgresConfig,
@@ -27,6 +29,5 @@ public func configure(_ app: Application) async throws {
 	app.migrations.add(CreateTransaction())
 	app.migrations.add(CreateUserToken())
 
-	// register routes
 	try routes(app)
 }
