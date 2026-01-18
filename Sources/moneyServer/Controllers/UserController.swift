@@ -21,6 +21,13 @@ struct UserController: RouteCollection {
 		try UserCreateDTO.validate(content: req)
 		let create = try req.content.decode(UserCreateDTO.self)
 
+		if try await User.query(on: req.db)
+			.filter(\.$email == create.email.lowercased())
+			.first() != nil
+		{
+			throw Abort(.conflict, reason: "A user with this email already exists.")
+		}
+
 		let user = try User(
 			id: nil,
 			email: create.email.lowercased(),
