@@ -9,6 +9,8 @@ struct TransactionController: RouteCollection {
 		tokenProtected.post(use: create)
 		tokenProtected.get(use: list)
 		tokenProtected.get(":transactionID", use: get)
+		tokenProtected.delete(":transactionID", use: delete)
+		tokenProtected.post("deleteMultiple", use: deleteMultiple)
 	}
 
 	func create(req: Request) async throws -> TransactionDTO {
@@ -30,15 +32,28 @@ struct TransactionController: RouteCollection {
 	}
 
 	func delete(req: Request) async throws -> HTTPStatus {
+		let user = try req.auth.require(User.self)
 		guard let transactionID = req.parameters.get("transactionID", as: UUID.self) else {
 			throw Abort(.badRequest)
 		}
 
-		guard let transaction = try await Transaction.find(transactionID, on: req.db) else {
-			throw Abort(.notFound)
-		}
+		guard let transaction = try await Transaction.query(on: req.db)
+			.filter(\.$id == transactionID)
+			.filter(\.$user.$id == user.requireID())
+			.first()
+		else { throw Abort(.notFound) }
 
 		try await transaction.delete(on: req.db)
+		return .ok
+	}
+
+	func deleteMultiple(req: Request) async throws -> HTTPStatus {
+		let user = try req.auth.require(User.self)
+		let dto = try req.content.decode(TransactionDeleteDTO.self)
+		try await Transaction.query(on: req.db)
+			.filter(\.$id ~~ dto.ids)
+			.filter(\.$user.$id == user.requireID()) // ensure only user’s transactions
+			.delete()
 		return .ok
 	}
 

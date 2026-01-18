@@ -1,6 +1,6 @@
 import Vapor
 
-struct HealthResponse: Content {
+struct HealthDTO: Content {
 	let status: String
 	let uptime: Int
 }

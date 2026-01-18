@@ -1,8 +1,8 @@
 import Vapor
 
 func routes(_ app: Application) throws {
-	app.get("health") { _ -> HealthResponse in
-		HealthResponse(
+	app.get("health") { _ -> HealthDTO in
+		HealthDTO(
 			status: "ok",
 			uptime: Int(ProcessInfo.processInfo.systemUptime)
 		)
