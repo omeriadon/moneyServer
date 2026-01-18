@@ -10,6 +10,7 @@ struct TransactionController: RouteCollection {
 		tokenProtected.get(use: list)
 		tokenProtected.get(":transactionID", use: get)
 		tokenProtected.delete(":transactionID", use: delete)
+		tokenProtected.patch(":transactionID", use: update)
 		tokenProtected.post("deleteMultiple", use: deleteMultiple)
 	}
 
@@ -66,6 +67,25 @@ struct TransactionController: RouteCollection {
 		      .first()
 		else { throw Abort(.notFound) }
 
+		return TransactionDTO(id: transaction.id, change: transaction.change, userID: user.id!)
+	}
+
+	func update(req: Request) async throws -> TransactionDTO {
+		let user = try req.auth.require(User.self)
+		guard let id = req.parameters.get("transactionID", as: UUID.self),
+		      let transaction = try await Transaction.query(on: req.db)
+		      .filter(\.$id == id)
+		      .filter(\.$user.$id == user.id!)
+		      .first()
+		else { throw Abort(.notFound) }
+
+		let update = try req.content.decode(TransactionUpdateDTO.self)
+
+		if let change = update.change {
+			transaction.change = change
+		}
+
+		try await transaction.save(on: req.db)
 		return TransactionDTO(id: transaction.id, change: transaction.change, userID: user.id!)
 	}
 }
