@@ -2,29 +2,29 @@ import Fluent
 import Vapor
 
 final class UserToken: Model, Content, @unchecked Sendable {
-    static let schema = "user_tokens"
+	static let schema = "user_tokens"
 
-    @ID(key: .id)
-    var id: UUID?
+	@ID(key: .id)
+	var id: UUID?
 
-    @Field(key: "value")
-    var value: String
+	@Field(key: "value")
+	var value: String
 
-    @Parent(key: "user_id")
-    var user: User
+	@Parent(key: "user_id")
+	var user: User
 
-    init() {}
+	init() {}
 
-    init(id: UUID? = nil, value: String, userID: UUID) {
-        self.id = id
-        self.value = value
-        $user.id = userID
-    }
+	init(id: UUID? = nil, value: String, userID: UUID) {
+		self.id = id
+		self.value = value
+		$user.id = userID
+	}
 }
 
 extension UserToken: ModelTokenAuthenticatable {
-    static var valueKey: KeyPath<UserToken, Field<String>> { \.$value }
-    static var userKey: KeyPath<UserToken, Parent<User>> { \.$user }
+	static var valueKey: KeyPath<UserToken, Field<String>> { \.$value }
+	static var userKey: KeyPath<UserToken, Parent<User>> { \.$user }
 
-    var isValid: Bool { true }
+	var isValid: Bool { true }
 }
