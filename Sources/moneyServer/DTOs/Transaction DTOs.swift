@@ -12,14 +12,14 @@ struct TransactionDTO: Content {
 }
 
 struct TransactionCreateDTO: Content {
-	let change: Int
+	let change: Double
 	let title: String
 	let description: String
 	let importance: Importance
 }
 
 struct TransactionUpdateDTO: Content {
-	let change: Int?
+	let change: Double?
 	let title: String?
 	let description: String?
 	let importance: Importance?

@@ -9,7 +9,7 @@ final class Transaction: Model, @unchecked Sendable {
 	var id: UUID?
 
 	@Field(key: "change")
-	var change: Int
+	var change: Double
 
 	@Field(key: "title")
 	var title: String
@@ -33,7 +33,7 @@ final class Transaction: Model, @unchecked Sendable {
 
 	init(
 		id: UUID? = nil,
-		change: Int,
+		change: Double,
 		title: String,
 		description: String,
 		importance: Importance,
