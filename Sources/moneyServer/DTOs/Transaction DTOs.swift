@@ -2,7 +2,7 @@ import Vapor
 
 struct TransactionDTO: Content {
 	let id: UUID?
-	let change: Int
+	let change: Double
 	let title: String
 	let description: String
 	let importance: Importance
