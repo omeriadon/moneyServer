@@ -102,15 +102,19 @@ struct TransactionController: RouteCollection {
 
 		try await transaction.save(on: req.db)
 
+		guard let refreshed = try await Transaction.find(transaction.id, on: req.db) else {
+			throw Abort(.internalServerError, reason: "Couldn't find item after updating")
+		}
+
 		return TransactionDTO(
-			id: transaction.id,
-			change: transaction.change,
-			title: transaction.title,
-			description: transaction.description,
-			importance: transaction.importance,
+			id: refreshed.id,
+			change: refreshed.change,
+			title: refreshed.title,
+			description: refreshed.description,
+			importance: refreshed.importance,
 			userID: user.id!,
-			dateCreated: transaction.dateCreated,
-			dateUpdated: .now
+			dateCreated: refreshed.dateCreated,
+			dateUpdated: refreshed.dateUpdated
 		)
 	}
 
