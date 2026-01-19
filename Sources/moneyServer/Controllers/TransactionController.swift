@@ -110,7 +110,7 @@ struct TransactionController: RouteCollection {
 			importance: transaction.importance,
 			userID: user.id!,
 			dateCreated: transaction.dateCreated,
-			dateUpdated: transaction.dateUpdated
+			dateUpdated: .now
 		)
 	}
 
