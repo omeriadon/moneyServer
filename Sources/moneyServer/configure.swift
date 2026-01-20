@@ -30,6 +30,5 @@ public func configure(_ app: Application) async throws {
 	app.migrations.add(CreateUserToken())
 	app.migrations.add(MakeTransactionDouble())
 
-
 	try routes(app)
 }
