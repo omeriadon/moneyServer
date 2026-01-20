@@ -16,7 +16,7 @@ struct UserController: RouteCollection {
 		tokenProtected.patch("me", use: update)
 	}
 
-	func signup(req: Request) async throws -> UserDTO {
+	func signup(req: Request) async throws -> UserTokenResponseDTO {
 		try UserCreateDTO.validate(content: req)
 		let create = try req.content.decode(UserCreateDTO.self)
 
@@ -34,14 +34,15 @@ struct UserController: RouteCollection {
 			firstName: create.firstName
 		)
 
-		do {
-			try await user.save(on: req.db)
-		} catch {
-			req.logger.error("\(String(reflecting: error))")
-			throw error
-		}
+		try await user.save(on: req.db)
 
-		return UserDTO(id: user.id, firstName: user.firstName, email: user.email)
+		let token = try user.generateToken()
+		try await token.save(on: req.db)
+
+		return UserTokenResponseDTO(
+			token: token.value,
+			user: UserDTO(id: user.id, firstName: user.firstName, email: user.email)
+		)
 	}
 
 	func login(req: Request) async throws -> UserTokenResponseDTO {
