@@ -6,7 +6,6 @@ struct UserController: RouteCollection {
 	func boot(routes: any RoutesBuilder) throws {
 		let users = routes.grouped("users")
 		users.post("signup", use: signup)
-
 		users.post("login", use: login)
 
 		let tokenProtected = users.grouped(UserToken.authenticator(), User.guardMiddleware())
@@ -62,7 +61,10 @@ struct UserController: RouteCollection {
 		let token = try user.generateToken()
 		try await token.save(on: req.db)
 
-		return UserTokenResponseDTO(token: token.value, user: UserDTO(id: user.id, firstName: user.firstName, email: user.email))
+		return UserTokenResponseDTO(
+			token: token.value,
+			user: UserDTO(id: user.id, firstName: user.firstName, email: user.email)
+		)
 	}
 
 	func logout(req: Request) async throws -> HTTPStatus {
@@ -79,17 +81,14 @@ struct UserController: RouteCollection {
 	func delete(req: Request) async throws -> HTTPStatus {
 		let user = try req.auth.require(User.self)
 
-		// Delete related tokens (optional)
 		try await UserToken.query(on: req.db)
 			.filter(\.$user.$id == user.requireID())
 			.delete()
 
-		// Delete related transactions (optional)
 		try await Transaction.query(on: req.db)
 			.filter(\.$user.$id == user.requireID())
 			.delete()
 
-		// Delete the user
 		try await user.delete(on: req.db)
 
 		return .ok
@@ -103,8 +102,15 @@ struct UserController: RouteCollection {
 			user.firstName = firstName
 		}
 
-		if let email = update.email {
-			user.email = email.lowercased()
+		if let email = update.email?.lowercased() {
+			if let existing = try await User.query(on: req.db)
+				.filter(\.$email == email)
+				.first(),
+				existing.id != user.id
+			{
+				throw Abort(.conflict, reason: "A user with this email already exists.")
+			}
+			user.email = email
 		}
 
 		if let password = update.password {
