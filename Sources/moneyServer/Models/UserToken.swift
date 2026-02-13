@@ -23,8 +23,15 @@ final class UserToken: Model, Content, @unchecked Sendable {
 }
 
 extension UserToken: ModelTokenAuthenticatable {
-	static var valueKey: KeyPath<UserToken, Field<String>> { \.$value }
-	static var userKey: KeyPath<UserToken, Parent<User>> { \.$user }
+	static var valueKey: KeyPath<UserToken, Field<String>> {
+		\.$value
+	}
 
-	var isValid: Bool { true }
+	static var userKey: KeyPath<UserToken, Parent<User>> {
+		\.$user
+	}
+
+	var isValid: Bool {
+		true
+	}
 }

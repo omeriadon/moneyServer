@@ -1,7 +1,9 @@
 import Fluent
 
 struct CreateUserToken: AsyncMigration {
-	var name: String { "CreateUserToken" }
+	var name: String {
+		"CreateUserToken"
+	}
 
 	func prepare(on database: any Database) async throws {
 		try await database.schema("user_tokens")

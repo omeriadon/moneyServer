@@ -40,8 +40,13 @@ extension User {
 }
 
 extension User: ModelAuthenticatable {
-	static var usernameKey: KeyPath<User, FieldProperty<User, String>> { \.$email }
-	static var passwordHashKey: KeyPath<User, FieldProperty<User, String>> { \.$passwordHash }
+	static var usernameKey: KeyPath<User, FieldProperty<User, String>> {
+		\.$email
+	}
+
+	static var passwordHashKey: KeyPath<User, FieldProperty<User, String>> {
+		\.$passwordHash
+	}
 
 	func verify(password: String) throws -> Bool {
 		try Bcrypt.verify(password, created: passwordHash)
