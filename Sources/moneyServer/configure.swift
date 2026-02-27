@@ -27,6 +27,7 @@ public func configure(_ app: Application) async throws {
 
 	app.migrations.add(CreateUser())
 	app.migrations.add(CreateTransaction())
+	app.migrations.add(CreateGoal())
 	app.migrations.add(CreateUserToken())
 	app.migrations.add(MakeTransactionDouble())
 	app.migrations.add(RenameImportanceEmergentToEmergency())

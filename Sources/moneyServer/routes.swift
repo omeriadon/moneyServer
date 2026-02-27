@@ -9,5 +9,6 @@ func routes(_ app: Application) throws {
 	}
 
 	try app.register(collection: TransactionController())
+	try app.register(collection: GoalController())
 	try app.register(collection: UserController())
 }

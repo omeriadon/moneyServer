@@ -20,6 +20,9 @@ final class User: Model, Authenticatable, @unchecked Sendable {
 	@Children(for: \.$user)
 	var transactions: [Transaction]
 
+	@Children(for: \.$user)
+	var goals: [Goal]
+
 	init() {}
 
 	init(id: UUID? = nil, email: String, passwordHash: String, firstName: String) {

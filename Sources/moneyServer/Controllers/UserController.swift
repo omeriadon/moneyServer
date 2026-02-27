@@ -89,6 +89,10 @@ struct UserController: RouteCollection {
 			.filter(\.$user.$id == user.requireID())
 			.delete()
 
+		try await Goal.query(on: req.db)
+			.filter(\.$user.$id == user.requireID())
+			.delete()
+
 		try await user.delete(on: req.db)
 
 		return .ok
