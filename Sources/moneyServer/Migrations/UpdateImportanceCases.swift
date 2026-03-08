@@ -45,9 +45,19 @@ struct AddGoalStatus: AsyncMigration {
 struct NormalizeGoalStatusValues: AsyncMigration {
 	func prepare(on database: any Database) async throws {
 		let sql = database as! any SQLDatabase
+
+		// Normalize weird persisted values like '"active"' or "'active'" safely.
 		try await sql.raw("""
 			UPDATE goals
-			SET status = trim(both E'\"' from trim(both '\'' from status));
+			SET status = lower(regexp_replace(status, '[^a-zA-Z_]', '', 'g'))
+			WHERE status IS NOT NULL;
+		""").run()
+
+		// Fallback any unknown status to active.
+		try await sql.raw("""
+			UPDATE goals
+			SET status = 'active'
+			WHERE status NOT IN ('active', 'paused', 'completed', 'archived');
 		""").run()
 
 		try await sql.raw("""
