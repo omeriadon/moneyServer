@@ -2,6 +2,13 @@ import Fluent
 import struct Foundation.UUID
 import Vapor
 
+enum GoalStatus: String, Codable, CaseIterable {
+	case active
+	case paused
+	case completed
+	case archived
+}
+
 final class Goal: Model, @unchecked Sendable {
 	static let schema = "goals"
 
@@ -16,6 +23,9 @@ final class Goal: Model, @unchecked Sendable {
 
 	@Field(key: "goal_amount")
 	var goalAmount: Double
+
+	@Field(key: "status")
+	var status: GoalStatus
 
 	@Parent(key: "user_id")
 	var user: User
@@ -33,12 +43,14 @@ final class Goal: Model, @unchecked Sendable {
 		name: String,
 		description: String,
 		goalAmount: Double,
+		status: GoalStatus = .active,
 		userID: UUID
 	) {
 		self.id = id
 		self.name = name
 		self.description = description
 		self.goalAmount = abs(goalAmount)
+		self.status = status
 		$user.id = userID
 	}
 }

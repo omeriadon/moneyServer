@@ -22,6 +22,7 @@ struct GoalController: RouteCollection {
 			name: dto.name,
 			description: dto.description,
 			goalAmount: abs(dto.goalAmount),
+			status: dto.status ?? .active,
 			userID: user.id!
 		)
 		try await goal.save(on: req.db)
@@ -31,6 +32,7 @@ struct GoalController: RouteCollection {
 			name: goal.name,
 			description: goal.description,
 			goalAmount: goal.goalAmount,
+			status: goal.status,
 			userID: user.id!,
 			dateCreated: goal.dateCreated,
 			dateUpdated: goal.dateUpdated
@@ -49,6 +51,7 @@ struct GoalController: RouteCollection {
 				name: goal.name,
 				description: goal.description,
 				goalAmount: goal.goalAmount,
+				status: goal.status,
 				userID: user.id!,
 				dateCreated: goal.dateCreated,
 				dateUpdated: goal.dateUpdated
@@ -72,6 +75,7 @@ struct GoalController: RouteCollection {
 			name: goal.name,
 			description: goal.description,
 			goalAmount: goal.goalAmount,
+			status: goal.status,
 			userID: user.id!,
 			dateCreated: goal.dateCreated,
 			dateUpdated: goal.dateUpdated
@@ -94,6 +98,7 @@ struct GoalController: RouteCollection {
 		if let name = update.name { goal.name = name }
 		if let description = update.description { goal.description = description }
 		if let goalAmount = update.goalAmount { goal.goalAmount = abs(goalAmount) }
+		if let status = update.status { goal.status = status }
 
 		try await goal.save(on: req.db)
 
@@ -106,6 +111,7 @@ struct GoalController: RouteCollection {
 			name: refreshed.name,
 			description: refreshed.description,
 			goalAmount: refreshed.goalAmount,
+			status: refreshed.status,
 			userID: user.id!,
 			dateCreated: refreshed.dateCreated,
 			dateUpdated: refreshed.dateUpdated

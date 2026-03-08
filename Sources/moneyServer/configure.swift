@@ -31,6 +31,7 @@ public func configure(_ app: Application) async throws {
 	app.migrations.add(CreateUserToken())
 	app.migrations.add(MakeTransactionDouble())
 	app.migrations.add(RenameImportanceEmergentToEmergency())
+	app.migrations.add(AddGoalStatus())
 
 	try routes(app)
 }
