@@ -46,7 +46,7 @@ struct NormalizeGoalStatusValues: AsyncMigration {
 	func prepare(on database: any Database) async throws {
 		let sql = database as! any SQLDatabase
 
-		// Normalize weird persisted values like '"active"' or "'active'" safely.
+		// Normalize weird persisted values like '\"active\"' or "'active'" safely.
 		try await sql.raw("""
 			UPDATE goals
 			SET status = lower(regexp_replace(status, '[^a-zA-Z_]', '', 'g'))
@@ -71,6 +71,50 @@ struct NormalizeGoalStatusValues: AsyncMigration {
 		try await sql.raw("""
 			ALTER TABLE goals
 			ALTER COLUMN status SET DEFAULT 'active';
+		""").run()
+	}
+}
+
+struct AddGoalArchivedToggle: AsyncMigration {
+	func prepare(on database: any Database) async throws {
+		let sql = database as! any SQLDatabase
+
+		try await sql.raw("""
+			ALTER TABLE goals
+			ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
+		""").run()
+
+		try await sql.raw("""
+			UPDATE goals
+			SET is_archived = TRUE
+			WHERE lower(status) = 'archived';
+		""").run()
+
+		try await sql.raw("""
+			UPDATE goals
+			SET status = 'active'
+			WHERE lower(status) = 'archived';
+		""").run()
+
+		try await sql.raw("""
+			UPDATE goals
+			SET status = 'active'
+			WHERE status NOT IN ('active', 'paused', 'completed');
+		""").run()
+	}
+
+	func revert(on database: any Database) async throws {
+		let sql = database as! any SQLDatabase
+
+		try await sql.raw("""
+			UPDATE goals
+			SET status = 'archived'
+			WHERE is_archived = TRUE;
+		""").run()
+
+		try await sql.raw("""
+			ALTER TABLE goals
+			DROP COLUMN IF EXISTS is_archived;
 		""").run()
 	}
 }

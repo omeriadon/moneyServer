@@ -33,6 +33,7 @@ public func configure(_ app: Application) async throws {
 	app.migrations.add(RenameImportanceEmergentToEmergency())
 	app.migrations.add(AddGoalStatus())
 	app.migrations.add(NormalizeGoalStatusValues())
+	app.migrations.add(AddGoalArchivedToggle())
 
 	try routes(app)
 }

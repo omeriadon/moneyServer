@@ -23,6 +23,7 @@ struct GoalController: RouteCollection {
 			description: dto.description,
 			goalAmount: abs(dto.goalAmount),
 			status: dto.status ?? .active,
+			isArchived: dto.isArchived ?? false,
 			userID: user.id!
 		)
 		try await goal.save(on: req.db)
@@ -33,6 +34,7 @@ struct GoalController: RouteCollection {
 			description: goal.description,
 			goalAmount: goal.goalAmount,
 			status: goal.status,
+			isArchived: goal.isArchived,
 			userID: user.id!,
 			dateCreated: goal.dateCreated,
 			dateUpdated: goal.dateUpdated
@@ -52,6 +54,7 @@ struct GoalController: RouteCollection {
 				description: goal.description,
 				goalAmount: goal.goalAmount,
 				status: goal.status,
+				isArchived: goal.isArchived,
 				userID: user.id!,
 				dateCreated: goal.dateCreated,
 				dateUpdated: goal.dateUpdated
@@ -76,6 +79,7 @@ struct GoalController: RouteCollection {
 			description: goal.description,
 			goalAmount: goal.goalAmount,
 			status: goal.status,
+			isArchived: goal.isArchived,
 			userID: user.id!,
 			dateCreated: goal.dateCreated,
 			dateUpdated: goal.dateUpdated
@@ -99,6 +103,7 @@ struct GoalController: RouteCollection {
 		if let description = update.description { goal.description = description }
 		if let goalAmount = update.goalAmount { goal.goalAmount = abs(goalAmount) }
 		if let status = update.status { goal.status = status }
+		if let isArchived = update.isArchived { goal.isArchived = isArchived }
 
 		try await goal.save(on: req.db)
 
@@ -112,6 +117,7 @@ struct GoalController: RouteCollection {
 			description: refreshed.description,
 			goalAmount: refreshed.goalAmount,
 			status: refreshed.status,
+			isArchived: refreshed.isArchived,
 			userID: user.id!,
 			dateCreated: refreshed.dateCreated,
 			dateUpdated: refreshed.dateUpdated

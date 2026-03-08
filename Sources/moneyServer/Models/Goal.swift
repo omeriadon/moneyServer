@@ -6,7 +6,6 @@ enum GoalStatus: String, Codable, CaseIterable {
 	case active
 	case paused
 	case completed
-	case archived
 
 	init(from decoder: any Decoder) throws {
 		let container = try decoder.singleValueContainer()
@@ -45,6 +44,9 @@ final class Goal: Model, @unchecked Sendable {
 	@Field(key: "status")
 	var status: GoalStatus
 
+	@Field(key: "is_archived")
+	var isArchived: Bool
+
 	@Parent(key: "user_id")
 	var user: User
 
@@ -62,6 +64,7 @@ final class Goal: Model, @unchecked Sendable {
 		description: String,
 		goalAmount: Double,
 		status: GoalStatus = .active,
+		isArchived: Bool = false,
 		userID: UUID
 	) {
 		self.id = id
@@ -69,6 +72,7 @@ final class Goal: Model, @unchecked Sendable {
 		self.description = description
 		self.goalAmount = abs(goalAmount)
 		self.status = status
+		self.isArchived = isArchived
 		$user.id = userID
 	}
 }

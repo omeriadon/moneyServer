@@ -6,6 +6,7 @@ struct GoalDTO: Content {
 	let description: String
 	let goalAmount: Double
 	let status: GoalStatus
+	let isArchived: Bool
 	let userID: UUID
 	let dateCreated: Date?
 	let dateUpdated: Date?
@@ -16,6 +17,7 @@ struct GoalCreateDTO: Content {
 	let description: String
 	let goalAmount: Double
 	let status: GoalStatus?
+	let isArchived: Bool?
 }
 
 struct GoalUpdateDTO: Content {
@@ -23,6 +25,7 @@ struct GoalUpdateDTO: Content {
 	let description: String?
 	let goalAmount: Double?
 	let status: GoalStatus?
+	let isArchived: Bool?
 }
 
 struct GoalDeleteDTO: Content {
