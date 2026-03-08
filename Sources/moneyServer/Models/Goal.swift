@@ -7,6 +7,24 @@ enum GoalStatus: String, Codable, CaseIterable {
 	case paused
 	case completed
 	case archived
+
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.singleValueContainer()
+		let rawValue = try container.decode(String.self)
+		let normalized = rawValue.trimmingCharacters(in: CharacterSet(charactersIn: "\"'"))
+		guard let status = GoalStatus(rawValue: normalized) else {
+			throw DecodingError.dataCorruptedError(
+				in: container,
+				debugDescription: "Cannot initialize GoalStatus from invalid String value '\(rawValue)'"
+			)
+		}
+		self = status
+	}
+
+	func encode(to encoder: any Encoder) throws {
+		var container = encoder.singleValueContainer()
+		try container.encode(rawValue)
+	}
 }
 
 final class Goal: Model, @unchecked Sendable {

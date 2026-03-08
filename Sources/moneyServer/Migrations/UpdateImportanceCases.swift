@@ -24,7 +24,7 @@ struct RenameImportanceEmergentToEmergency: AsyncMigration {
 struct AddGoalStatus: AsyncMigration {
 	func prepare(on database: any Database) async throws {
 		try await database.schema("goals")
-			.field("status", .string, .required, .sql(.default("'active'")))
+			.field("status", .string, .required, .sql(.default("active")))
 			.update()
 
 		let sql = database as! any SQLDatabase
@@ -39,5 +39,28 @@ struct AddGoalStatus: AsyncMigration {
 		try await database.schema("goals")
 			.deleteField("status")
 			.update()
+	}
+}
+
+struct NormalizeGoalStatusValues: AsyncMigration {
+	func prepare(on database: any Database) async throws {
+		let sql = database as! any SQLDatabase
+		try await sql.raw("""
+			UPDATE goals
+			SET status = trim(both E'\"' from trim(both '\'' from status));
+		""").run()
+
+		try await sql.raw("""
+			ALTER TABLE goals
+			ALTER COLUMN status SET DEFAULT 'active';
+		""").run()
+	}
+
+	func revert(on database: any Database) async throws {
+		let sql = database as! any SQLDatabase
+		try await sql.raw("""
+			ALTER TABLE goals
+			ALTER COLUMN status SET DEFAULT 'active';
+		""").run()
 	}
 }
